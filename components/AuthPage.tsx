@@ -51,6 +51,7 @@ export function AuthPage({ isSignIn, redirect }: { isSignIn: boolean, redirect?:
         setLoading(false);
         return;
       }
+     
 
       if (redirect) {
         router.push(redirect);
