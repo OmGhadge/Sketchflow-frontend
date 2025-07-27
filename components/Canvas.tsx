@@ -31,16 +31,19 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
    
     useEffect(() => {
       async function fetchUser() {
-        const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
+        // Only fetch user data for non-read-only users
+        if (!readOnly) {
+          const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
+            credentials: 'include',
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data.user);
+          }
         }
       }
       fetchUser();
-    }, []);
+    }, [readOnly]);
 
     useEffect(()=>{
         if (game && !readOnly) {
