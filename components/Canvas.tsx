@@ -150,74 +150,72 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
         )}
       
         <aside className="fixed top-1/2 left-8 -translate-y-1/2 z-30 flex flex-col items-center bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-4 gap-2 border border-gray-200">
-          <div className="mb-2 text-xs font-semibold text-gray-500">{readOnly ? "Read-only" : "Tool"}</div>
           {!readOnly && (
-            <div className="flex flex-col gap-2">
-              {(["pencil","rect","circle","line","arrow","text","eraser"] as const).map(tool => (
+            <>
+              <div className="mb-2 text-xs font-semibold text-gray-500">Tool</div>
+              <div className="flex flex-col gap-2">
+                {(["pencil","rect","circle","line","arrow","text","eraser"] as const).map(tool => (
+                  <button
+                    key={tool}
+                    className={`group w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-150 ${selectedTool===tool ? "bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg" : "hover:bg-gray-100"}`}
+                    onClick={() => setSelectedTool(tool)}
+                    title={TOOL_LABELS[tool]}
+                  >
+                    {tool==="pencil" && <Pencil className="w-6 h-6" />}
+                    {tool==="rect" && <RectangleHorizontalIcon className="w-6 h-6" />}
+                    {tool==="circle" && <Circle className="w-6 h-6" />}
+                    {tool==="line" && <Minus className="w-6 h-6" />}
+                    {tool==="arrow" && <ArrowUpRight className="w-6 h-6" />}
+                    {tool==="text" && <Type className="w-6 h-6" />}
+                    {tool==="eraser" && <Eraser className="w-6 h-6" />}
+                    <span className="absolute left-14 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">{TOOL_LABELS[tool]}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="my-2 border-t border-gray-200 w-8" />
+              <button
+                className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-pink-500 text-white shadow hover:from-red-600 hover:to-pink-600 transition-all duration-200"
+                onClick={handleClear}
+                title="Clear Canvas"
+              >
+                <Trash2 className="w-6 h-6" />
+              </button>
+              <div className="mt-2 flex flex-col gap-2">
                 <button
-                  key={tool}
-                  className={`group w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-150 ${selectedTool===tool ? "bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg" : "hover:bg-gray-100"}`}
-                  onClick={() => setSelectedTool(tool)}
-                  title={TOOL_LABELS[tool]}
+                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.origin + `/canvas/${roomId}`);
+                      setShareMsg("Editable link copied to clipboard!");
+                      setTimeout(() => setShareMsg(""), 2000);
+                    } catch {
+                      setShareMsg("Failed to copy link");
+                      setTimeout(() => setShareMsg(""), 2000);
+                    }
+                  }}
+                  title="Share Edit Link"
                 >
-                  {tool==="pencil" && <Pencil className="w-6 h-6" />}
-                  {tool==="rect" && <RectangleHorizontalIcon className="w-6 h-6" />}
-                  {tool==="circle" && <Circle className="w-6 h-6" />}
-                  {tool==="line" && <Minus className="w-6 h-6" />}
-                  {tool==="arrow" && <ArrowUpRight className="w-6 h-6" />}
-                  {tool==="text" && <Type className="w-6 h-6" />}
-                  {tool==="eraser" && <Eraser className="w-6 h-6" />}
-                  <span className="absolute left-14 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">{TOOL_LABELS[tool]}</span>
+                  <Share2 className="w-6 h-6" />
                 </button>
-              ))}
-            </div>
+                <button
+                  className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 text-white shadow hover:from-gray-600 hover:to-gray-800 transition-all duration-200"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.origin + `/canvas/${roomId}?readonly=1`);
+                      setShareMsg("Read-only link copied to clipboard!");
+                      setTimeout(() => setShareMsg(""), 2000);
+                    } catch {
+                      setShareMsg("Failed to copy link");
+                      setTimeout(() => setShareMsg(""), 2000);
+                    }
+                  }}
+                  title="Share Read-only Link"
+                >
+                  <Share2 className="w-6 h-6" />
+                </button>
+              </div>
+            </>
           )}
-          <div className="my-2 border-t border-gray-200 w-8" />
-          <button
-            className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-pink-500 text-white shadow hover:from-red-600 hover:to-pink-600 transition-all duration-200"
-            onClick={handleClear}
-            title="Clear Canvas"
-            disabled={readOnly}
-          >
-            <Trash2 className="w-6 h-6" />
-          </button>
-      
-          <div className="mt-2 flex flex-col gap-2">
-            <button
-              className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
-              onClick={async () => {
-                if (readOnly) return;
-                try {
-                  await navigator.clipboard.writeText(window.location.origin + `/canvas/${roomId}`);
-                  setShareMsg("Editable link copied to clipboard!");
-                  setTimeout(() => setShareMsg(""), 2000);
-                } catch {
-                  setShareMsg("Failed to copy link");
-                  setTimeout(() => setShareMsg(""), 2000);
-                }
-              }}
-              title="Share Edit Link"
-              disabled={readOnly}
-            >
-              <Share2 className="w-6 h-6" />
-            </button>
-            <button
-              className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-gray-500 to-gray-700 text-white shadow hover:from-gray-600 hover:to-gray-800 transition-all duration-200"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(window.location.origin + `/canvas/${roomId}?readonly=1`);
-                  setShareMsg("Read-only link copied to clipboard!");
-                  setTimeout(() => setShareMsg(""), 2000);
-                } catch {
-                  setShareMsg("Failed to copy link");
-                  setTimeout(() => setShareMsg(""), 2000);
-                }
-              }}
-              title="Share Read-only Link"
-            >
-              <Share2 className="w-6 h-6" />
-            </button>
-          </div>
           {shareMsg && (
             <div className="fixed left-32 top-10 bg-black text-white px-4 py-2 rounded shadow-lg z-50">{shareMsg}</div>
           )}
@@ -231,7 +229,14 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
               ref={canvasRef}
               width={1200}
               height={800}
-              style={{ position: 'relative', zIndex: 1, background: 'transparent', borderRadius: '1rem', boxShadow: 'none' }}
+              style={{ 
+                position: 'relative', 
+                zIndex: 1, 
+                background: 'transparent', 
+                borderRadius: '1rem', 
+                boxShadow: 'none',
+                cursor: readOnly ? 'grab' : 'crosshair'
+              }}
               onClick={event => {
                 if (readOnly) return;
                 if (selectedTool === "text" && game) {
@@ -257,7 +262,6 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
             game.setPan(newPanX, newPanY);
         }
               }}
-              style={{ cursor: readOnly ? 'grab' : 'crosshair' }}
               onMouseDown={readOnly ? (event => {
                 if (game) {
                   game.startPan(event.clientX, event.clientY);
