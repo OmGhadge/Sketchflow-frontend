@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { BACKEND_URL } from "@/config";
+
 export default function CanvasPage({ params }: { params: { roomId: string } }) {
   const router = useRouter();
   const searchParams = useSearchParams();

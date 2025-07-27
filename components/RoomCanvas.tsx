@@ -22,37 +22,44 @@ export default function RoomCanvas({roomId}:{roomId:string}){
         if (cancelled) return;
         
         try {
-         
-          const tokenRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
-            credentials: 'include',
-          });
+          let token = null;
           
-          if (!tokenRes.ok) {
-            setWsError("Authentication required. Please sign in.");
-            setIsLoading(false);
-            return;
+          if (!isReadOnly) {
+
+            const tokenRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
+              credentials: 'include',
+            });
+            
+            if (!tokenRes.ok) {
+              setWsError("Authentication required. Please sign in.");
+              setIsLoading(false);
+              return;
+            }
+            
+            const userData = await tokenRes.json();
+            token = userData.token;
+            
+            if (!token) {
+              setWsError("No authentication token found. Please sign in.");
+              setIsLoading(false);
+              return;
+            }
           }
           
-          const userData = await tokenRes.json();
-          const token = userData.token; 
           
-          if (!token) {
-            setWsError("No authentication token found. Please sign in.");
-            setIsLoading(false);
-            return;
+          let wsUrl = WS_URL;
+          if (token) {
+            wsUrl += `?token=${encodeURIComponent(token)}`;
           }
-          
-         
-          let wsUrl = `${WS_URL}?token=${encodeURIComponent(token)}`;
           if (isReadOnly) {
-            wsUrl += '&readonly=1';
+            wsUrl += token ? '&readonly=1' : '?readonly=1';
           }
           
           setWsError("");
           ws = new WebSocket(wsUrl);
           
           ws.onopen = () => {
-            console.log("[RoomCanvas] WebSocket opened");
+            console.log("RoomCanvas - WebSocket opened");
             setSocket(ws!);
             setIsLoading(false);
             everConnected.current = true;
@@ -63,11 +70,11 @@ export default function RoomCanvas({roomId}:{roomId:string}){
           };
           
           ws.onmessage = (event) => {
-            console.log("[RoomCanvas] WebSocket message:", event.data);
+            console.log("RoomCanvas - WebSocket message:", event.data);
           };
           
           ws.onclose = (event) => {
-            console.log("[RoomCanvas] WebSocket closed", event);
+            console.log("RoomCanvas - WebSocket closed", event);
 
             if (!everConnected.current && event.code !== 1001) {
               if (errorTimeout.current) clearTimeout(errorTimeout.current);
@@ -78,7 +85,7 @@ export default function RoomCanvas({roomId}:{roomId:string}){
           };
           
           ws.onerror = (err) => {
-            console.log("[RoomCanvas] WebSocket error", err);
+            console.log("RoomCanvas - WebSocket error", err);
            
             if (!everConnected.current) {
               if (errorTimeout.current) clearTimeout(errorTimeout.current);
@@ -89,8 +96,12 @@ export default function RoomCanvas({roomId}:{roomId:string}){
           };
           
         } catch (error) {
-          console.error("[RoomCanvas] Error getting token:", error);
-          setWsError("Failed to authenticate. Please sign in again.");
+          console.error("RoomCanvas - Error getting token:", error);
+          if (!isReadOnly) {
+            setWsError("Failed to authenticate. Please sign in again.");
+          } else {
+            setWsError("Failed to connect to server. Please try again.");
+          }
           setIsLoading(false);
         }
       }

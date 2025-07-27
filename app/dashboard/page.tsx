@@ -26,13 +26,13 @@ export default function Dashboard() {
     router.push("/signin");
   }
 
-  // Check login status and fetch designs on mount
+  // Checking login status and fetching designs on mount
   useEffect(() => {
     async function checkAndFetch() {
       setLoading(true);
       setError("");
       try {
-        // Check login status
+        // Checking login status
         const meRes = await fetch(`${BACKEND_URL}/api/auth/me`, {
           credentials: "include",
         });
@@ -40,7 +40,7 @@ export default function Dashboard() {
           router.push("/signin");
           return;
         }
-        // Fetch designs
+        // Fetching designs
         const res = await fetch(`${BACKEND_URL}/api/designs`, {
           credentials: "include",
         });
@@ -56,7 +56,7 @@ export default function Dashboard() {
     checkAndFetch();
   }, [router]);
 
-  // Create new design
+  // Creating new design
   async function handleCreate() {
     const name = prompt("Enter a name for your new design:");
     if (!name) return;
@@ -77,12 +77,12 @@ export default function Dashboard() {
     }
   }
 
-  // Open design
+  // Opening design
   function handleOpen(id: number) {
     router.push(`/canvas/${id}`);
   }
 
-  // Delete design
+  // Deleting design
   async function handleDelete(id: number) {
     if (!confirm("Are you sure you want to delete this design?")) return;
     try {
@@ -100,7 +100,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-white">
-      {/* Header Bar */}
+
       <header className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">

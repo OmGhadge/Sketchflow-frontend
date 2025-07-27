@@ -21,7 +21,7 @@ export function HeroSection() {
           </Link>
         </div>
       </div>
-      {/* Subtle background illustration */}
+   
       <div className="absolute left-0 top-0 w-80 h-80 bg-purple-200 rounded-full opacity-30 blur-3xl -z-10" style={{ filter: 'blur(80px)' }}></div>
       <div className="absolute right-0 bottom-0 w-96 h-96 bg-pink-200 rounded-full opacity-20 blur-3xl -z-10" style={{ filter: 'blur(100px)' }}></div>
     </section>

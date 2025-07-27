@@ -19,7 +19,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
     const [selectedTool,setSelectedTool]=useState<'rect' | 'circle' | 'pencil' | 'text' | 'line' | 'arrow' | 'eraser'>('circle');
     const [game,setGame]=useState<Game|undefined>();
     const [textInput, setTextInput] = useState("");
-    // Update textInputPos to store both canvas and screen coordinates
+
     const [textInputPos, setTextInputPos] = useState<{canvas: {x: number, y: number}, screen: {x: number, y: number}} | null>(null);
     const [showTextInput, setShowTextInput] = useState(false);
     const [shareMsg, setShareMsg] = useState("");
@@ -28,7 +28,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
     const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
     const [collaborators, setCollaborators] = useState<Array<{id: string, name?: string, photo?: string}>>([]);
 
-    // Fetch user profile after login
+   
     useEffect(() => {
       async function fetchUser() {
         const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
@@ -53,7 +53,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
        const g=new Game(canvasRef.current, Number(roomId), socket);
        g.onTextToolClick = (x: number, y: number) => {
            setTextInput("");
-                // Convert canvas coordinates to screen coordinates
+               
                 const rect = canvasRef.current!.getBoundingClientRect();
                 const screenX = x * (g.scale ?? 1) + (g.panX ?? 0) + rect.left;
                 const screenY = y * (g.scale ?? 1) + (g.panY ?? 0) + rect.top;
@@ -97,23 +97,11 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
       }
     };
 
-    // Pan handlers removed since 'hand' tool is not supported
 
-    // Adjust text input position to follow transform (not needed, handled above)
-    // let transformedTextInputPos = textInputPos;
-    // if (textInputPos && game) {
-    //     const scale = game.scale ?? 1;
-    //     const panX = game.panX ?? 0;
-    //     const panY = game.panY ?? 0;
-    //     transformedTextInputPos = {
-    //         x: textInputPos.x * scale + panX,
-    //         y: textInputPos.y * scale + panY,
-    //     };
-    // }
 
     return (
       <div className="relative min-h-screen flex bg-gradient-to-br from-purple-50 via-pink-50 to-white">
-        {/* Collaborator avatars at top center */}
+   
         {collaborators.length > 0 && (
           <div className="fixed top-6 left-1/2 -translate-x-1/2 z-40 flex gap-2 items-center bg-white/80 rounded-full px-4 py-2 shadow border border-gray-200">
             {collaborators.map(u => (
@@ -128,7 +116,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
             <span className="ml-2 text-xs text-gray-500 font-medium">{collaborators.length} editing</span>
           </div>
         )}
-        {/* User avatar at top right */}
+     
         {user && (
           <div className="fixed top-6 right-8 z-40">
             <button
@@ -160,7 +148,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
             )}
           </div>
         )}
-        {/* Vertical Toolbar */}
+      
         <aside className="fixed top-1/2 left-8 -translate-y-1/2 z-30 flex flex-col items-center bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-4 gap-2 border border-gray-200">
           <div className="mb-2 text-xs font-semibold text-gray-500">{readOnly ? "Read-only" : "Tool"}</div>
           {!readOnly && (
@@ -193,7 +181,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
           >
             <Trash2 className="w-6 h-6" />
           </button>
-          {/* Remove the div that displays the current selected tool label in the toolbar */}
+      
           <div className="mt-2 flex flex-col gap-2">
             <button
               className="w-12 h-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow hover:from-blue-600 hover:to-purple-600 transition-all duration-200"
@@ -235,10 +223,10 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
           )}
         </aside>
 
-        {/* Canvas Area */}
+     
         <div className="flex-1 flex items-center justify-center min-h-screen">
           <div className="relative rounded-2xl shadow-2xl overflow-hidden border border-gray-200 bg-white/80" style={{width: 'calc(100vw - 160px)', height: '80vh', maxWidth: 1200, maxHeight: 800}}>
-            {/* Canvas element */}
+          
             <canvas
               ref={canvasRef}
               width={1200}
@@ -286,7 +274,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
                 }
               }) : undefined}
         ></canvas>
-            {/* Text input overlay */}
+          
             {showTextInput && textInputPos && (
             <input
                 autoFocus
@@ -323,7 +311,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
                 }}
             />
         )}
-            {/* Read-only banner */}
+           
             {readOnly && (
               <div className="absolute top-0 left-0 w-full bg-yellow-300/90 text-gray-900 text-center py-2 font-semibold z-20 rounded-t-2xl shadow">
                 Read-only mode: You are viewing this canvas as a guest. Editing is disabled.

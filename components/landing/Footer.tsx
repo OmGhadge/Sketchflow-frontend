@@ -21,8 +21,6 @@ export function Footer() {
             <ul className="space-y-2 text-gray-400">
               <li><a href="#features" className="hover:text-white transition-colors duration-200">Features</a></li>
               <li><a href="#" className="hover:text-white transition-colors duration-200">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Templates</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Integrations</a></li>
             </ul>
           </div>
           <div>
@@ -30,8 +28,6 @@ export function Footer() {
             <ul className="space-y-2 text-gray-400">
               <li><a href="#" className="hover:text-white transition-colors duration-200">Help Center</a></li>
               <li><a href="#" className="hover:text-white transition-colors duration-200">Contact Us</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Privacy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors duration-200">Terms</a></li>
             </ul>
           </div>
         </div>
