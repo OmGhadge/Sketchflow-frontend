@@ -69,14 +69,17 @@ export class Game{
     public onShapesUpdated?: () => void;
     private loading: boolean = true;
    
-    constructor(canvas:HTMLCanvasElement,roomId:number|string,socket:WebSocket){
+    private readOnly: boolean = false;
+
+    constructor(canvas:HTMLCanvasElement,roomId:number|string,socket:WebSocket,readOnly?:boolean){
      this.canvas=canvas;
     this.context=canvas.getContext("2d")!;
     this.existingShapes=[];
     this.roomId=Number(roomId);
     this.socket=socket;
+    this.readOnly=readOnly || false;
     this.clicked=false;
-    console.log('[Game] Constructed with roomId:', this.roomId, 'socket:', this.socket);
+    console.log('Game Constructed with roomId:', this.roomId, 'socket:', this.socket, 'readOnly:', this.readOnly);
     this.init();
     this.initHandlers();
     this.initMouseHandlers();
@@ -90,7 +93,7 @@ export class Game{
         this.loading = true;
         this.existingShapes = [];
         if (this.onShapesUpdated) this.onShapesUpdated();
-        this.existingShapes = await getExistingShapes(String(this.roomId));
+        this.existingShapes = await getExistingShapes(String(this.roomId), this.readOnly);
         this.loading = false;
         this.clearCanvas();
         if (this.onShapesUpdated) this.onShapesUpdated();
@@ -100,7 +103,7 @@ export class Game{
 
     initHandlers(){
     this.socket.onmessage=(event)=>{
-        console.log('[Game] Received WebSocket message:', event.data);
+        console.log('Game Received WebSocket message:', event.data);
         const message=JSON.parse(event.data);
         if(message.type=="chat"){
             if (message.message) {
@@ -124,7 +127,7 @@ export class Game{
         }
 
         if(message.type==="history" && Array.isArray(message.shapes)){
-            this.existingShapes = message.shapes.filter((s: any) => s && s.id && typeof s.id === 'string');
+            this.existingShapes = message.shapes.filter((s: unknown) => s && typeof s === 'object' && s !== null && 'id' in s && typeof (s as {id: unknown}).id === 'string');
             this.clearCanvas();
             if (this.onShapesUpdated) this.onShapesUpdated();
         }
@@ -200,6 +203,8 @@ export class Game{
         this.canvas.removeEventListener("mousemove", this.mouseMoveHandler);
     }
     addTextShape(x: number, y: number, value: string) {
+        if (this.readOnly) return; 
+        
         const shape = { id: genId(), type: "text" as const, x, y, value };
         this.existingShapes.push(shape);
         this.socket.send(
@@ -398,13 +403,12 @@ export class Game{
         }
     }
     initMouseHandlers(){
-      this.canvas.addEventListener("mousedown",this.mouseDownHandler);
      
-        
+      if (!this.readOnly) {
+        this.canvas.addEventListener("mousedown",this.mouseDownHandler);
         this.canvas.addEventListener("mouseup",this.mouseUpHandler);
-
-    
-        this.canvas.addEventListener("mousemove",this.mouseMoveHandler) 
+        this.canvas.addEventListener("mousemove",this.mouseMoveHandler);
+      }
 }
     setZoom(scale: number) {
         this.scale = Math.max(0.2, Math.min(4, scale));
@@ -433,6 +437,8 @@ export class Game{
         this.isPanning = false;
     }
     clearAllShapes() {
+        if (this.readOnly) return; 
+        
         this.existingShapes = [];
         this.socket.send(
             JSON.stringify({

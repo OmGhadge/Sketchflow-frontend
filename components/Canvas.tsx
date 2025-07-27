@@ -50,7 +50,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
 
     useEffect(()=>{
     if(canvasRef.current){
-       const g=new Game(canvasRef.current, Number(roomId), socket);
+       const g=new Game(canvasRef.current, Number(roomId), socket, readOnly);
        g.onTextToolClick = (x: number, y: number) => {
            setTextInput("");
                
@@ -67,7 +67,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
         g.destroy();
        }
     }
-    },[canvasRef, roomId, socket])
+    },[canvasRef, roomId, socket, readOnly])
     
     useEffect(() => {
         if (game) {
