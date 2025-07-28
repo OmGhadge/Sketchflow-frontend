@@ -31,7 +31,7 @@ export function Canvas({roomId,socket,readOnly}:{roomId:number|string,socket:Web
    
     useEffect(() => {
       async function fetchUser() {
-        // Only fetch user data for non-read-only users
+   
         if (!readOnly) {
           const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
             credentials: 'include',
